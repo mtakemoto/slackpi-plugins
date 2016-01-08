@@ -1,13 +1,10 @@
 from plexapi.server import PlexServer
+from plugin_base import Plugin
 import random
 
-plex = PlexServer('http://192.168.0.110:32400')
 outputs = []
-contable = []
-
-def reply(message, channel):
-    outputs.append([channel, message])
-    return None
+plex = PlexServer('http://192.168.1.2:32400')
+plugin = Plugin()
 
 def format_list(list):
     return ''.join(list)
@@ -17,14 +14,14 @@ def listall(argv, channel):
     sectitle = argv[2]
     for show in plex.library.section(sectitle).all():
         list.append(show.title + '\n')
-    reply(format_list(list), channel)
+    plugin.reply(format_list(list), channel, outputs)
     return None
 
 def setplayer(argv, channel):
     list = []
     for client in plex.clients():
         list.append(client.name + '\n')
-    reply(format_list(list), channel)
+    plugin.reply(format_list(list), channel, outputs)
     return None
 
 def get_section_list(secname):
@@ -42,7 +39,7 @@ def get_libraries_list():
 def shuffle(argv, channel):
     liblist = get_libraries_list()
     if len(argv) < 3:
-        reply("Usage: plexcmd shuffle <library or show name>", channel)
+        plugin.reply("Usage: plexcmd shuffle <library or show name>", channel, outputs)
         return
     else:
         target = argv[2]
@@ -52,10 +49,10 @@ def shuffle(argv, channel):
             random_item = seclist[random.randint(0, len(seclist) - 1)]
             if section.TYPE == 'movie':
                 movie = plex.library.get(random_item)
-                reply(movie.title, channel)
+                plugin.reply(movie.title, channel, outputs)
             elif section.TYPE == 'show':
                 show = plex.library.get(random_item)
-                reply(show.title, channel)
+                plugin.reply(show.title, channel, outputs)
     return
 
 def process_message(data):
@@ -83,19 +80,19 @@ def process_message(data):
 #shows = plex.library.section(shows)
 #showsize = len(shows)
 #random.randint(0, showsize - 1)
-'''Planned functions:
-    list <library>
-    shuffle <library> <show, if one> [-p]
-        --"plex shuffle Shows"
-        --"plex shuffle Adventure Time"
+    '''Planned functions:
+        list <library>
+        shuffle <library> <show, if one> [-p]
+            --"plex shuffle Shows"
+            --"plex shuffle Adventure Time"
 
-    setplayer
-        --list connected devices & respond with number
-        --respond within 30 secs  or with 'cancel' to cancel
-    plexcmd
-        --print usage and availible functions
+        setplayer
+            --list connected devices & respond with number
+            --respond within 30 secs  or with 'cancel' to cancel
+        plexcmd
+            --print usage and availible functions
 
-'''
+    '''
 
 
 
