@@ -1,4 +1,5 @@
 from plexapi.server import PlexServer
+from plexapi.client import Client
 from plugin_base import Plugin
 import random
 import shlex
@@ -6,6 +7,7 @@ import traceback
 
 outputs = []
 plex = PlexServer('http://localhost:32400')
+player = Client(plex, plex.query('/clients'))
 plugin = Plugin()
 
 def format_list(list):
@@ -29,11 +31,24 @@ def list_players(argv, channel):
         plugin.reply(response, channel, outputs)
 
 def setplayer(argv, channel):
-    list = []
-    for client in plex.clients():
-        list.append(client.name + '\n')
-    plugin.reply(format_list(list), channel, outputs)
+    clients = plex.clients()
+    if len(argv) > 2 and argv[2].isdigit() and int(argv[2]) <= len(plex.clients()):
+        if clients:
+            clinum = int(argv[2])
+            global player
+            player = plex.clients()[clinum - 1] 
+            plugin.reply("Player set to %s" % player.name, channel, outputs)
+        else:
+            plugin.reply("Error: no clients", channel, outputs)
+    else:
+        plugin.reply("Usage: plexcmd setplayer <player ID>", channel, outputs)
     return None
+
+def play(media, channel):
+    if player.name:
+        player.playMedia(media)
+    else:
+        plugin.reply("Error: player not set or disconnected", channel, outputs)
 
 def get_section_list(secname):
     list = []
@@ -69,6 +84,8 @@ def shuffle(argv, channel):
                 shuffle_movies(random_item, channel)
             elif section.TYPE == 'show':
                 shuffle_shows(random_item, channel)
+            if argv[-1] == "-p":
+                play(random_item, channel)
     return
 
 def process_message(data):
