@@ -1,6 +1,8 @@
 from plexapi.server import PlexServer
 from plugin_base import Plugin
 import random
+import shlex
+import traceback
 
 outputs = []
 plex = PlexServer('http://localhost:32400')
@@ -16,6 +18,15 @@ def listall(argv, channel):
         list.append(show.title + '\n')
     plugin.reply(format_list(list), channel, outputs)
     return None
+
+def list_players(argv, channel):
+    clients = plex.clients()
+    if not clients:
+        plugin.reply("no players connected", channel, outputs)
+        return None
+    for idx, client in enumerate(plex.clients()):
+        response = "[%i] %s \n" % ((idx + 1), client.name)
+        plugin.reply(response, channel, outputs)
 
 def setplayer(argv, channel):
     list = []
@@ -36,6 +47,13 @@ def get_libraries_list():
         libs.append(section.title)
     return libs
 
+def shuffle_movies(movie, channel):
+    plugin.reply(movie.title, channel, outputs)
+
+def shuffle_shows(show, channel):
+    episode = random.choice(show.episodes())
+    plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
+
 def shuffle(argv, channel):
     liblist = get_libraries_list()
     if len(argv) < 3:
@@ -46,31 +64,33 @@ def shuffle(argv, channel):
         if target in liblist:
             seclist = get_section_list(target)
             section = plex.library.section(target)
-            random_item = random.choice(seclist) 
+            random_item = plex.library.get(random.choice(seclist))
             if section.TYPE == 'movie':
-                movie = plex.library.get(random_item)
-                plugin.reply(movie.title, channel, outputs)
+                shuffle_movies(random_item, channel)
             elif section.TYPE == 'show':
-                show = plex.library.get(random_item)
-                episode = random.choice(show.episodes())
-                plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
+                shuffle_shows(random_item, channel)
     return
 
 def process_message(data):
-    channel = data["channel"]
-    text = data["text"]
+    try:
+        channel = data["channel"]
+        text = data["text"]
 
-    #DM only
-    if channel.startswith("D"):
-        if text.startswith("plexcmd"):
-            argv = text.split()
+        #DM only
+        if channel.startswith("D"):
+            if text.startswith("plexcmd"):
+                argv = shlex.split(text)
 
-            options = {"list" : listall,
-                       "setplayer" : setplayer,
-                        "shuffle" : shuffle,
-            }
-            options[argv[1]](argv, channel)
+                options = {"list" : listall,
+                           "setplayer" : setplayer,
+                           "listplayers": list_players,
+                           "shuffle" : shuffle,
+                }
+                options[argv[1]](argv, channel)
 
+    except Exception, error:
+        print "%s: %s" % (error.__doc__, error.name)
+        traceback.print_exec()
     return None
 
 
