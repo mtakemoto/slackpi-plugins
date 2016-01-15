@@ -68,6 +68,7 @@ def shuffle_movies(movie, channel):
 def shuffle_shows(show, channel):
     episode = random.choice(show.episodes())
     plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
+    return episode
 
 def shuffle(argv, channel):
     liblist = get_libraries_list()
@@ -83,7 +84,7 @@ def shuffle(argv, channel):
             if section.TYPE == 'movie':
                 shuffle_movies(random_item, channel)
             elif section.TYPE == 'show':
-                shuffle_shows(random_item, channel)
+                random_item = shuffle_shows(random_item, channel)
             if argv[-1] == "-p":
                 play(random_item, channel)
     return
