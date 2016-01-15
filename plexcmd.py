@@ -3,7 +3,7 @@ from plugin_base import Plugin
 import random
 
 outputs = []
-plex = PlexServer('http://192.168.1.2:32400')
+plex = PlexServer('http://localhost:32400')
 plugin = Plugin()
 
 def format_list(list):
@@ -46,13 +46,14 @@ def shuffle(argv, channel):
         if target in liblist:
             seclist = get_section_list(target)
             section = plex.library.section(target)
-            random_item = seclist[random.randint(0, len(seclist) - 1)]
+            random_item = random.choice(seclist) 
             if section.TYPE == 'movie':
                 movie = plex.library.get(random_item)
                 plugin.reply(movie.title, channel, outputs)
             elif section.TYPE == 'show':
                 show = plex.library.get(random_item)
-                plugin.reply(show.title, channel, outputs)
+                episode = random.choice(show.episodes())
+                plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
     return
 
 def process_message(data):
