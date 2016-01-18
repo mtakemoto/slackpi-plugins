@@ -47,8 +47,9 @@ def setplayer(argv, channel):
 def play(media, channel):
     if player.name:
         player.playMedia(media)
+        return True
     else:
-        plugin.reply("Error: player not set or disconnected", channel, outputs)
+        return False
 
 def get_section_list(secname):
     list = []
@@ -63,11 +64,11 @@ def get_libraries_list():
     return libs
 
 def shuffle_movies(movie, channel):
-    plugin.reply(movie.title, channel, outputs)
+    plugin.reply("Selected %s" % movie.title, channel, outputs)
 
 def shuffle_shows(show, channel):
     episode = random.choice(show.episodes())
-    plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
+    plugin.reply("Selected %s \"%s\"" % (show.title, episode.title), channel, outputs)
     return episode
 
 def refresh(argv, channel):
@@ -87,18 +88,20 @@ def shuffle(argv, channel):
     if len(argv) < 3:
         plugin.reply("Usage: plexcmd shuffle <library or show name>", channel, outputs)
         return
-    else:
-        target = argv[2]
-        if target in liblist:
-            seclist = get_section_list(target)
-            section = plex.library.section(target)
-            random_item = plex.library.get(random.choice(seclist))
-            if section.TYPE == 'movie':
-                shuffle_movies(random_item, channel)
-            elif section.TYPE == 'show':
-                random_item = shuffle_shows(random_item, channel)
-            if argv[-1] == "-p":
-                play(random_item, channel)
+
+    target = argv[2]
+    if target in liblist:
+        seclist = get_section_list(target)
+        section = plex.library.section(target)
+        random_item = plex.library.get(random.choice(seclist))
+        if section.TYPE == 'movie':
+            shuffle_movies(random_item, channel)
+        elif section.TYPE == 'show':
+            random_item = shuffle_shows(random_item, channel)
+        if(play(random_item, channel)):
+            plugin.reply("Playing on %s" % (player.name), channel, outputs)
+        else:
+            plugin.reply("Error: player disconnected or not set", channel, outputs)
     return
 
 def process_message(data):
