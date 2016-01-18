@@ -70,6 +70,18 @@ def shuffle_shows(show, channel):
     plugin.reply("%s \"%s\"" % (show.title, episode.title), channel, outputs)
     return episode
 
+def refresh(argv, channel):
+    if len(argv) < 3:
+        plugin.reply("Usage: plexcmd shuffle <library or show name>", channel, outputs)
+        return None
+    for library in plex.library.sections():
+        if argv[2] == library.title:
+            library.refresh()
+            plugin.reply("Refreshing %s..." % library.title, channel, outputs)
+            return library
+    plugin.reply("Error: library %s not found (could not refresh)" % argv[2], channel, outputs)
+    return library
+
 def shuffle(argv, channel):
     liblist = get_libraries_list()
     if len(argv) < 3:
@@ -103,6 +115,7 @@ def process_message(data):
                            "setplayer" : setplayer,
                            "listplayers": list_players,
                            "shuffle" : shuffle,
+                           "refresh" : refresh,
                 }
                 options[argv[1]](argv, channel)
 
