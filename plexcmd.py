@@ -13,12 +13,15 @@ plugin = Plugin()
 def format_list(list):
     return ''.join(list)
 
-def listall(argv, channel):
+def list(argv, channel):
     list = []
-    sectitle = argv[2]
-    for show in plex.library.section(sectitle).all():
-        list.append(show.title + '\n')
-    plugin.reply(format_list(list), channel, outputs)
+    param = argv[2]
+    if param in get_libraries_list():
+        for show in plex.library.section(param).all():
+            list.append(show.title + '\n')
+        plugin.reply(format_list(list), channel, outputs)
+    elif param == "players":
+        list_players(argv, channel)
     return None
 
 def list_players(argv, channel):
@@ -111,12 +114,11 @@ def process_message(data):
 
         #DM only
         if channel.startswith("D"):
-            if text.startswith("plexcmd"):
+            if text.lower().startswith("plexcmd"):
                 argv = shlex.split(text)
 
-                options = {"list" : listall,
+                options = {"list" : list,
                            "setplayer" : setplayer,
-                           "listplayers": list_players,
                            "shuffle" : shuffle,
                            "refresh" : refresh,
                 }
