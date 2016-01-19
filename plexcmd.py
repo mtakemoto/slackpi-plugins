@@ -114,8 +114,10 @@ def process_message(data):
 
         #DM only
         if channel.startswith("D"):
-            if text.lower().startswith("plexcmd"):
+            if text.lower().startswith("plex"):
                 argv = shlex.split(text)
+                if len(argv) < 2:
+                    plugin.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
 
                 options = {"list" : list,
                            "setplayer" : setplayer,
@@ -128,28 +130,6 @@ def process_message(data):
         print "%s: %s" % (error.__doc__, error.name)
         traceback.print_exec()
     return None
-
-
-#argv = ['plexcmd', 'shuffle', 'Movies']
-#channel = 'DM12345'
-#shuffle(argv, channel)
-
-#shows = plex.library.section(shows)
-#showsize = len(shows)
-#random.randint(0, showsize - 1)
-    '''Planned functions:
-        list <library>
-        shuffle <library> <show, if one> [-p]
-            --"plex shuffle Shows"
-            --"plex shuffle Adventure Time"
-
-        setplayer
-            --list connected devices & respond with number
-            --respond within 30 secs  or with 'cancel' to cancel
-        plexcmd
-            --print usage and availible functions
-
-    '''
 
 
 
