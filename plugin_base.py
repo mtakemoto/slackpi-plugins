@@ -1,7 +1,12 @@
+from sense_hat import SenseHat
 import re
 
 class Plugin(object):
-    
+    def __init__(self):
+        self.sense = SenseHat()
+        self.sense.set_rotation(270)
+        self.sense.low_light = True
+
     def reply_all(self, message, channels, outputs):
         for channel in channels:
             print "sending %s to %s" % (message, channel)
