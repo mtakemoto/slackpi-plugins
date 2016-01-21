@@ -4,11 +4,21 @@ from plugin_base import Plugin
 import random
 import shlex
 import traceback
+import time
 
 outputs = []
-plex = PlexServer('http://localhost:32400')
-player = Client(plex, plex.query('/clients'))
 plugin = Plugin()
+
+retries = 0
+while retries < 5:
+    try:
+        plex = PlexServer('http://localhost:32400')
+        player = Client(plex, plex.query('/clients'))
+        break
+    except Exception:
+        print "Error: server not found.  Retrying..."
+        retries += 1
+    time.sleep(5)
 
 def format_list(list):
     return ''.join(list)
