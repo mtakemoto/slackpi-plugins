@@ -117,33 +117,28 @@ def shuffle(argv, channel):
             plugin.reply("Error: player disconnected or not set", channel, outputs)
     return
 
-class PlexRTM(Plugin):
-    def process_message(data):
-        try:
-            channel = data["channel"]
-            text = data["text"]
-            argv = shlex.split(text)
+def process_message(data):
+    print "process message called in plexcmd.py"
 
-            #DM only
-            if channel.startswith("D"):
-                if text.lower().startswith("plex"):
-                    if len(argv) < 2:
-                        self.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
+    channel = data["channel"]
+    text = data["text"]
+    argv = shlex.split(text)
 
-                    options = {"list" : list,
-                               "setplayer" : setplayer,
-                               "shuffle" : shuffle,
-                               "refresh" : refresh,
-                    }
-                    options[argv[1]](argv, channel)
-                if text.lower().startswith("message"):
-                    self.sense.show_message(argv[1])
+    #DM only
+    if channel.startswith("D"):
+        if text.lower().startswith("plex"):
+            if len(argv) < 2:
+                plugin.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
 
-
-        except Exception, error:
-            print "%s: %s" % (error.__doc__, error.name)
-            traceback.print_exec()
-        return None
+            options = {"list" : list,
+                       "setplayer" : setplayer,
+                       "shuffle" : shuffle,
+                       "refresh" : refresh,
+            }
+            options[argv[1]](argv, channel)
+        if text.lower().startswith("message"):
+            plugin.sense.show_message(argv[1])
+    return None
 
 
 
