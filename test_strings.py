@@ -15,5 +15,5 @@ def testall():
     process_message(plex); 
 
 if __name__ == "__main__":
-    from plexcmd import *
+    from main import *
     testall()

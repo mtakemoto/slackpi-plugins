@@ -1,7 +1,7 @@
 from sense_hat import SenseHat
 import re
 
-class Plugin(object):
+class SlackPi(object):
     def __init__(self):
         self.sense = SenseHat()
         self.sense.set_rotation(270)
