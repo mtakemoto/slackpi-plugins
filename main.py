@@ -1,9 +1,9 @@
 import shlex
-from plugin_base import Plugin
+from slackpi_base import SlackPi 
 from plexcmd import PlexCMD
 
 #initialize all helper classes
-plugin = Plugin()
+slackpi = SlackPi()
 plex = PlexCMD()
 
 #Set local outputs array
@@ -20,7 +20,7 @@ def process_message(data):
     if channel.startswith("D"):
         if text.lower().startswith("plex"):
             if len(argv) < 2:
-                plugin.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
+                slackpi.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
                 return None
             options = {"list" : plex.list,
                        "setplayer" : plex.setplayer,

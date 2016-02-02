@@ -1,18 +1,18 @@
 #Settings Plugin
-from plugin_base import Plugin
+from slackpi_base import SlackPi 
 
 outputs = []
 
-class Settings(Plugin):
+class Settings(SlackPi):
     debug_mode = False
 
     def debug(argv, channel):
         if(argv[2] == 'on'):
             debug_mode = True
-            super(Settings, self).reply("Debug on", channel, outputs)
+            SlackPi.reply("Debug on", channel, outputs)
         elif(argv[2] == 'off'):
             debug_mode = False
-            super(Settings, self).reply("Debug off", channel, outputs)
+            SlackPi.reply("Debug off", channel, outputs)
         else:
             print "invalid argument for debug"
 
