@@ -1,9 +1,6 @@
 import shlex
-import gc
 from slackpi_base import SlackPi 
 from plexcmd import PlexCMD
-
-gc.collect()
 
 #initialize all helper classes
 slackpi = SlackPi()
@@ -18,10 +15,14 @@ def process_message(data):
     channel = data["channel"]
     text = data["text"]
     argv = shlex.split(text)
+    command = ""
+    
+    if(argv):
+        command = argv[0].lower()
 
     #DM only
     if channel.startswith("D"):
-        if text.lower().startswith("plex"):
+        if command == "plex": 
             if len(argv) < 2:
                 slackpi.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
                 return None
@@ -32,6 +33,6 @@ def process_message(data):
             }
             if argv[1] in options:
                 options[argv[1]](argv, channel)
-        if text.lower().startswith("message"):
-            plugin.sense.show_message(argv[1])
+        if command == "message": 
+            slackpi.sense.show_message(argv[1])
     return None
