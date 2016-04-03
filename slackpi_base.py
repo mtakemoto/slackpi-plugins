@@ -33,4 +33,10 @@ class SlackPi(object):
             if 'text' in data:
                 text = data['text']
         return text
+    
+    def print_message(self, argv, channel):
+        if(len(argv) > 1):
+            self.sense.show_message(argv[1])
+        else:
+            self.reply("usage: message \"text to print\"", channel, outputs)
 

@@ -1,6 +1,8 @@
 import shlex
+import thread
 from slackpi_base import SlackPi 
 from plexcmd import PlexCMD
+from detect import Detect
 
 #initialize all helper classes
 slackpi = SlackPi()
@@ -8,10 +10,9 @@ plex = PlexCMD()
 
 #Set local outputs array
 outputs = []
+crontable = []
 
 def process_message(data):
-    print data
-
     channel = data["channel"]
     text = data["text"]
     argv = shlex.split(text)
@@ -33,6 +34,9 @@ def process_message(data):
             }
             if argv[1] in options:
                 options[argv[1]](argv, channel)
-        if command == "message": 
-            slackpi.sense.show_message(argv[1])
+        elif command == "detect":
+            detect.status(argv, channel)
+        elif command == "message":
+            slackpi.print_message(argv, channel)
+
     return None
