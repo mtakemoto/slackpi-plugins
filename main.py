@@ -1,12 +1,17 @@
 import shlex
 import thread
+import time
 from slackpi_base import SlackPi 
 from plexcmd import PlexCMD
 from detect import Detect
+from weather import Weather
 
 #initialize all helper classes
 slackpi = SlackPi()
 plex = PlexCMD()
+weather = Weather("98225")
+weather.get_current()
+weather.report()
 
 #Set local outputs array
 outputs = []

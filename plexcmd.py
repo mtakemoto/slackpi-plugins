@@ -9,6 +9,7 @@ outputs = []
 
 class PlexCMD(SlackPi):
     def __init__(self):
+        print "Initializing plex plugin"
         retries = 0
         while retries < 5:
             try:
