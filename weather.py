@@ -55,10 +55,13 @@ class Weather(object):
     def get_wind(self):
         return str(round(self.currentdata['wind']['speed'], 1))
 
-    def report(self):
+    #User Facing Functions
+    #must take argv and a slack channel just in case
+
+    def report(self, argv=None):
         temp = self.get_temp() + " deg"
         status = ", " + self.get_description()
-        wind = " " + self.get_wind() + "MPH"
+        wind = " " + self.get_wind() + " MPH"
         text = temp + status + wind
         print text 
         return text 

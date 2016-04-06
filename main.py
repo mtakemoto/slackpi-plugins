@@ -8,6 +8,12 @@ from plexcmd import PlexCMD
 from detect import Detect
 from weather import Weather
 
+#Set joystick button mapping based on physical orientation
+JS_UP = ecodes.KEY_LEFT
+JS_DOWN = ecodes.KEY_RIGHT 
+JS_LEFT = ecodes.KEY_DOWN 
+JS_RIGHT = ecodes.KEY_UP 
+
 #initialize all helper classes
 slack = Slack()
 sensehat = SenseHatWrap()
@@ -46,7 +52,20 @@ def process_message(data):
         elif command == "detect":
             detect.status(argv, channel)
         elif command == "message":
-            sensehat.print_message(argv, channel)
+            if(len(argv) == 2):
+                sensehat.print_message(argv[1])
+            else:
+                slack.reply("Usage: message \"message here\"")
+        elif command == "weather":
+            if len(argv) < 2:
+                slack.reply("weather <report>", channel, outputs)
+                return None
+            options = {"report" : weather.report,
+                      }
+            if argv[1] in options:
+                response = options[argv[1]](argv)
+                slack.reply(response, channel, outputs)
+            
 
     return None
 
@@ -57,13 +76,13 @@ class JoystickListener(threading.Thread):
         self.name = name
 
     def handle_code(self, code, action):
-        if code == ecodes.KEY_DOWN:
+        if code == JS_DOWN: 
             return
-        elif code == ecodes.KEY_UP:
+        elif code == JS_UP:
             return
-        elif code == ecodes.KEY_LEFT:
+        elif code == JS_LEFT:
             return
-        elif code == ecodes.KEY_RIGHT:
+        elif code == JS_RIGHT: 
             sensehat.print_message(weather.report())
         elif code == ecodes.KEY_ENTER:
             return
