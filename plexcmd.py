@@ -1,13 +1,13 @@
 from plexapi.server import PlexServer
 from plexapi.client import Client
-from slackpi_base import SlackPi 
+from slackpi_base import Slack 
 import random
 import traceback
 import time
 
 outputs = []
 
-class PlexCMD(SlackPi):
+class PlexCMD(Slack):
     def __init__(self):
         print "Initializing plex plugin"
         retries = 0
@@ -30,7 +30,7 @@ class PlexCMD(SlackPi):
         if param in self.get_libraries_list():
             for show in self.plex.library.section(param).all():
                 list.append(show.title + '\n')
-            SlackPi.reply(self, self.format_list(list), channel, outputs)
+            Slack.reply(self, self.format_list(list), channel, outputs)
         elif param == "players":
             self.list_players(argv, channel)
         return None
@@ -38,11 +38,11 @@ class PlexCMD(SlackPi):
     def list_players(self, argv, channel):
         clients = self.plex.clients()
         if not clients:
-            SlackPi.reply(self, "no players connected", channel, outputs)
+            Slack.reply(self, "no players connected", channel, outputs)
             return None
         for idx, client in enumerate(self.plex.clients()):
             response = "[%i] %s \n" % ((idx + 1), client.name)
-            SlackPi.reply(self, response, channel, outputs)
+            Slack.reply(self, response, channel, outputs)
 
     def setplayer(self, argv, channel):
         clients = self.plex.clients()
@@ -50,11 +50,11 @@ class PlexCMD(SlackPi):
             if clients:
                 clinum = int(argv[2])
                 self.player = self.plex.clients()[clinum - 1] 
-                SlackPi.reply(self, "Player set to %s" % self.player.name, channel, outputs)
+                Slack.reply(self, "Player set to %s" % self.player.name, channel, outputs)
             else:
-                SlackPi.reply(self, "Error: no clients", channel, outputs)
+                Slack.reply(self, "Error: no clients", channel, outputs)
         else:
-            SlackPi.reply(self, "Usage: plexcmd setplayer <player ID>", channel, outputs)
+            Slack.reply(self, "Usage: plexcmd setplayer <player ID>", channel, outputs)
         return None
 
     def play(self, media, channel):
@@ -77,29 +77,29 @@ class PlexCMD(SlackPi):
         return libs
 
     def shuffle_movies(self, movie, channel):
-        SlackPi.reply(self, "Selected %s" % movie.title, channel, outputs)
+        Slack.reply(self, "Selected %s" % movie.title, channel, outputs)
 
     def shuffle_shows(self, show, channel):
         episode = random.choice(show.episodes())
-        SlackPi.reply(self, "Selected %s \"%s\"" % (show.title, episode.title), channel, outputs)
+        Slack.reply(self, "Selected %s \"%s\"" % (show.title, episode.title), channel, outputs)
         return episode
 
     def refresh(self, argv, channel):
         if len(argv) < 3:
-            SlackPi.reply(self, "Usage: plexcmd shuffle <library or show name>", channel, outputs)
+            Slack.reply(self, "Usage: plexcmd shuffle <library or show name>", channel, outputs)
             return None
         for library in self.plex.library.sections():
             if argv[2] == library.title:
                 library.refresh()
-                SlackPi.reply(self, "Refreshing %s..." % library.title, channel, outputs)
+                Slack.reply(self, "Refreshing %s..." % library.title, channel, outputs)
                 return library
-        SlackPi.reply(self, "Error: library %s not found (could not refresh)" % argv[2], channel, outputs)
+        Slack.reply(self, "Error: library %s not found (could not refresh)" % argv[2], channel, outputs)
         return library
 
     def shuffle(self, argv, channel):
         liblist = self.get_libraries_list()
         if len(argv) < 3:
-            SlackPi.reply(self, "Usage: plexcmd shuffle <library or show name>", channel, outputs)
+            Slack.reply(self, "Usage: plexcmd shuffle <library or show name>", channel, outputs)
             return
         target = argv[2]
         if target in liblist:
@@ -111,8 +111,8 @@ class PlexCMD(SlackPi):
             elif section.TYPE == 'show':
                 random_item = self.shuffle_shows(random_item, channel)
             if(self.play(random_item, channel)):
-                SlackPi.reply(self, "Playing on %s" % (self.player.name), channel, outputs)
+                Slack.reply(self, "Playing on %s" % (self.player.name), channel, outputs)
             else:
-                SlackPi.reply(self, "Error: player disconnected or not set", channel, outputs)
+                Slack.reply(self, "Error: player disconnected or not set", channel, outputs)
         return
 

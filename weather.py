@@ -53,10 +53,10 @@ class Weather(object):
         return str(self.currentdata['weather'][0]['description'])
 
     def get_wind(self):
-        return str(self.currentdata['wind']['speed'])
+        return str(round(self.currentdata['wind']['speed'], 1))
 
     def report(self):
-        temp = self.get_temp() + " degrees"
+        temp = self.get_temp() + " deg"
         status = ", " + self.get_description()
         wind = " " + self.get_wind() + "MPH"
         text = temp + status + wind

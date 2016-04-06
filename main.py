@@ -1,13 +1,16 @@
 import shlex
 import thread
 import time
-from slackpi_base import SlackPi 
+import sys, threading
+from evdev import InputDevice, list_devices, ecodes
+from slackpi_base import * 
 from plexcmd import PlexCMD
 from detect import Detect
 from weather import Weather
 
 #initialize all helper classes
-slackpi = SlackPi()
+slack = Slack()
+sensehat = SenseHatWrap()
 plex = PlexCMD()
 weather = Weather("98225")
 weather.get_current()
@@ -17,6 +20,7 @@ weather.report()
 outputs = []
 crontable = []
 
+#-----------------------------------
 def process_message(data):
     channel = data["channel"]
     text = data["text"]
@@ -30,7 +34,7 @@ def process_message(data):
     if channel.startswith("D"):
         if command == "plex": 
             if len(argv) < 2:
-                slackpi.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
+                slack.reply("plex <list> <setplayer> <shuffle> <refresh>", channel, outputs)
                 return None
             options = {"list" : plex.listall,
                        "setplayer" : plex.setplayer,
@@ -42,6 +46,52 @@ def process_message(data):
         elif command == "detect":
             detect.status(argv, channel)
         elif command == "message":
-            slackpi.print_message(argv, channel)
+            sensehat.print_message(argv, channel)
 
     return None
+
+
+class JoystickListener(threading.Thread):
+    def __init__(self, name):
+        threading.Thread.__init__(self)
+        self.name = name
+
+    def handle_code(self, code, action):
+        if code == ecodes.KEY_DOWN:
+            return
+        elif code == ecodes.KEY_UP:
+            return
+        elif code == ecodes.KEY_LEFT:
+            return
+        elif code == ecodes.KEY_RIGHT:
+            sensehat.print_message(weather.report())
+        elif code == ecodes.KEY_ENTER:
+            return
+
+    def run(self):
+        print "Starting " + self.name
+        running = True
+        for event in dev.read_loop():
+            if event.type == ecodes.EV_KEY:
+                if event.value == 1:  # key down
+                    print("key down")
+                    self.handle_code(event.code, "down")
+                '''if event.value == 0:  # key up
+                    print("key up")
+                    self.handle_code(event.code, "up")
+                '''
+#----------------------------
+
+found = False
+devices = [InputDevice(fn) for fn in list_devices()]
+for dev in devices:
+    if dev.name == 'Raspberry Pi Sense HAT Joystick':
+        found = True
+        break
+
+if found:
+    js_listener = JoystickListener("Hat JS Listener")
+    js_listener.start()
+else:
+    print "Critical Error: Sense Hat Joystick not found"
+

@@ -1,12 +1,8 @@
 from sense_hat import SenseHat
+import time
 import re
 
-class SlackPi(object):
-    def __init__(self):
-        self.sense = SenseHat()
-        self.sense.set_rotation(270)
-        self.sense.low_light = True
-
+class Slack(object):
     def reply_all(self, message, channels, outputs):
         for channel in channels:
             print "sending %s to %s" % (message, channel)
@@ -34,3 +30,11 @@ class SlackPi(object):
                 text = data['text']
         return text
 
+class SenseHatWrap(object):
+    def __init__(self):
+        self.sense = SenseHat()
+        self.sense.set_rotation(270)
+        self.sense.low_light = True
+
+    def print_message(self, message):
+        self.sense.show_message(message)
