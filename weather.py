@@ -57,11 +57,27 @@ class Weather(object):
 
     #User Facing Functions
     #must take argv and a slack channel just in case
+    def report_basic(self, argv=None):
+        #Reload data. Need to add over-limit handling or rate limiting
+        self.get_current()
 
-    def report(self, argv=None):
         temp = self.get_temp() + " deg"
         status = ", " + self.get_description()
         wind = " " + self.get_wind() + " MPH"
         text = temp + status + wind
+        print text 
+        return text 
+
+    def report(self, argv=None):
+        #Reload data. Need to add over-limit handling or rate limiting
+        self.get_current()
+
+        temp = self.get_temp() + "degrees"
+        status = ", " + self.get_description()
+        wind = ", " + self.get_wind() + " MPH"
+        text = temp + status + wind
+        timestamp = self.currentdata['dt']
+        time = datetime.datetime.fromtimestamp(timestamp).strftime("%B %d, %Y %I:%M:%S %p")
+        text += "\nGenerated on " + time
         print text 
         return text 

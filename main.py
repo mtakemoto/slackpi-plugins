@@ -83,7 +83,7 @@ class JoystickListener(threading.Thread):
         elif code == JS_LEFT:
             return
         elif code == JS_RIGHT: 
-            sensehat.print_message(weather.report())
+            sensehat.print_message(weather.report_basic())
         elif code == ecodes.KEY_ENTER:
             return
 
