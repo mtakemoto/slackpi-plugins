@@ -26,6 +26,8 @@ weather.report()
 outputs = []
 crontable = []
 
+#Cron Jobs
+
 #-----------------------------------
 def process_message(data):
     channel = data["channel"]
